@@ -6,32 +6,47 @@
 //  Copyright 2010 kosertech. All rights reserved.
 //
 
-#import "instaPaperLib.h"
+#import "InstaPaperLib.h"
 
 
-@implementation instaPaperLib
+@implementation InstaPaperLib
 
 
 // returns YES if everythign went ok returns NO if a bad status or connection error
--(BOOL) postToInstapaperWithUserName:(NSString*)username andPassword:(NSString*)password 
-							 andBody:(NSString*)PostText andURL:(NSString*)url andTitle:(NSString*)title{
+-(BOOL) postToInstapaperWithUserName:(NSString*)username 
+                            password:(NSString*)password 
+                                body:(NSString*)postText 
+                                 url:(NSString*)url 
+                               title:(NSString*)title {
 	
-	BOOL responseCode = NO;
+	NSString *post = [NSString stringWithFormat:@"username=%@&password=%@&url=%@",
+					  username, password, url];
+  
+	if (postText != nil) {
+    post = [post stringByAppendingFormat:@"&selection=%@", postText];
+  }
+  
+	if (title != nil) {
+    post = [post stringByAppendingFormat:@"&title=%@", title];
+  }
+  
+	return [self postToInstapaper:@"add" postBody:post];
+}
+
+-(BOOL) authenticateWithUserName:(NSString*)username password:(NSString*)password {
+	NSString *post = [NSString stringWithFormat:@"username=%@&password=%@",
+					  username, password];
 	
-	/// post in the form of
-	// www.instapaper.com/api/add?username=username&password=password&selection=this%20is%20some%20sample%20text&url=www.urlhere.com
-	
-	
-	NSString *post = [NSString stringWithFormat:@"username=%@&password=%@&selection=%@&url=%@&title=%@",
-					  username, password, PostText, url, title];
-	//NSLog(post);
-	
-	NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+	return [self postToInstapaper:@"authenticate" postBody:post];
+}
+
+-(BOOL) postToInstapaper:(NSString *)apiMethod postBody:(NSString *)postBody {
+	NSData *postData = [postBody dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
 	
 	NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
 	
 	NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] init] autorelease];
-	[request setURL:[NSURL URLWithString:@"https://www.instapaper.com/api/add"]];
+	[request setURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://www.instapaper.com/api/%@", apiMethod]]];
 	[request setHTTPMethod:@"POST"];
 	[request setValue:postLength forHTTPHeaderField:@"Content-Length"];
 	[request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
@@ -48,10 +63,9 @@
 	if ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300) {
 		NSLog(@"Response: %@", result);
 		//here you get the response
-		responseCode = YES;
+		return YES;
 	}
-	
-	return responseCode;
+	return NO;
 }
 
 @end

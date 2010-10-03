@@ -9,11 +9,18 @@
 #import <Foundation/Foundation.h>
 
 
-@interface instaPaperLib : NSObject {
+@interface InstaPaperLib : NSObject {
 
 }
 
--(BOOL) postToInstapaperWithUserName:(NSString*)username andPassword:(NSString*)password andBody:(NSString*)PostText 
-							  andURL:(NSString*)url andTitle:(NSString*)title;
+-(BOOL) postToInstapaperWithUserName:(NSString*)username 
+                            password:(NSString*)password 
+                                body:(NSString*)PostText 
+                                 url:(NSString*)url 
+                               title:(NSString*)title;
+
+-(BOOL) authenticateWithUserName:(NSString*)username password:(NSString*)password;
+
+-(BOOL) postToInstapaper:(NSString *)apiMethod postBody:(NSString *)postBody;
 
 @end
